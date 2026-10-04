@@ -6,33 +6,45 @@
     <title>Flow Cash Tracker</title>
     <!-- Tailwind CSS v4 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Google Font: Plus Jakarta Sans -->
+    <!-- Google Font: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style type="text/tailwindcss">
         @custom-variant dark (&:where(.dark, dark *));
 
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
         @keyframes splashEntrance {
-            0% { opacity: 0; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.05); }
+            0% { opacity: 0; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.02); }
             100% { opacity: 1; transform: scale(1); }
         }
         @keyframes splashFadeOut {
             0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(1.1); visibility: hidden; }
+            100% { opacity: 0; transform: scale(1.05); visibility: hidden; }
         }
         @keyframes appEntrance {
-            from { opacity: 0; transform: scale(0.96) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from { opacity: 0; transform: translateY(12px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+            from { opacity: 0; transform: translateY(-8px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes fadeOut {
             from { opacity: 1; transform: translateY(0) scale(1); }
-            to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+            to { opacity: 0; transform: translateY(-8px) scale(0.97); }
+        }
+        @keyframes slideUpModal {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideDownModal {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100%); opacity: 0; }
         }
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
@@ -45,19 +57,25 @@
             animation: gradientShift 6s ease infinite;
         }
         .animate-splash {
-            animation: splashEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: splashEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .animate-splash-exit {
-            animation: splashFadeOut 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: splashFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .animate-app-load {
             animation: appEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .animate-fade {
-            animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .animate-exit {
-            animation: fadeOut 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-slide-up {
+            animation: slideUpModal 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-slide-down {
+            animation: slideDownModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .no-scrollbar::-webkit-scrollbar {
@@ -72,8 +90,6 @@
             body {
                 background-color: white !important;
                 color: black !important;
-                display: block !important;
-                padding: 0 !important;
             }
             #splash-screen, #main-page, #history-page, .no-print, button, input {
                 display: none !important;
@@ -87,12 +103,6 @@
                 background: white !important;
                 color: black !important;
             }
-            .print-header {
-                display: block !important;
-                border-bottom: 2px solid #059669;
-                padding-bottom: 12px;
-                margin-bottom: 20px;
-            }
         }
     </style>
     <script>
@@ -103,257 +113,267 @@
         }
     </script>
 </head>
-<body id="app-body" class="bg-slate-950 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex justify-center items-center p-4 pt-safe pb-safe transition-all duration-700">
+<body id="app-body" class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex justify-center items-center p-4 transition-colors duration-500">
 
     <!-- Intro Splash Screen Overlay -->
     <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white transition-colors">
         <div class="text-center animate-splash">
-            <h1 id="splash-logo" class="text-5xl font-black tracking-wider text-rose-500 mb-2">Flow.</h1>
+            <h1 class="text-5xl font-black tracking-wider text-rose-500 mb-2">Flow.</h1>
             <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Cash Tracker</p>
         </div>
     </div>
 
-    <!-- Main Dashboard Page -->
-    <div id="main-page" class="w-full max-w-md backdrop-blur-xl p-6 rounded-3xl shadow-2xl opacity-0 transition-all duration-500">
+    <!-- Main Card Interface container (Focus point) -->
+    <div id="main-card-wrapper" class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 rounded-3xl shadow-2xl transition-all duration-500">
         
-        <!-- Top Header & Controls -->
-        <div class="flex justify-between items-center mb-4">
-            <h1 id="app-logo-title" class="text-2xl font-extrabold tracking-wide text-rose-500 transition-colors duration-500">Flow.</h1>
-            <div class="flex items-center space-x-2">
-                <!-- Analytics Button -->
-                <button onclick="openAnalyticsPage()" class="p-2.5 rounded-xl bg-black/10 dark:bg-slate-900/40 hover:bg-black/20 dark:hover:bg-slate-900/70 text-slate-900 dark:text-slate-100 hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm border border-slate-300 dark:border-white/10" title="Analytics & Budget">
-                    <span class="text-sm font-bold">📊</span>
-                </button>
-                <!-- Theme Toggle Button -->
-                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-black/10 dark:bg-slate-900/40 hover:bg-black/20 dark:hover:bg-slate-900/70 text-slate-900 dark:text-slate-100 hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm border border-slate-300 dark:border-white/10">
-                    <span id="theme-icon" class="text-sm font-bold">☀️</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Multi-Bank Swipe Carousel Header -->
-        <div class="relative mb-5">
-            <button onclick="prevBank()" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/40 hover:bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center transition cursor-pointer backdrop-blur-md">&#10094;</button>
-            <button onclick="nextBank()" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/40 hover:bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center transition cursor-pointer backdrop-blur-md">&#10095;</button>
-            <div id="bank-carousel" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl transition-all touch-pan-y" onscroll="trackScrollPosition()"></div>
-            <div id="carousel-dots" class="flex justify-center items-center space-x-2 mt-2.5"></div>
-        </div>
-
-        <!-- Monthly Budget Widget Bar on Main Dashboard -->
-        <div onclick="openAnalyticsPage()" class="mb-5 p-3.5 rounded-2xl bg-white/50 dark:bg-black/30 border border-slate-300 dark:border-white/10 cursor-pointer hover:border-slate-400 dark:hover:border-white/30 transition shadow-inner">
-            <div class="flex justify-between items-center mb-1.5">
-                <span class="text-xs font-bold text-slate-800 dark:text-white/80 uppercase tracking-wide">Monthly Budget Limit</span>
-                <span id="budget-status-text" class="text-xs font-bold text-slate-900 dark:text-white">RM 0.00 / RM 0.00</span>
-            </div>
-            <div class="w-full bg-black/10 dark:bg-black/40 h-2.5 rounded-full overflow-hidden">
-                <div id="budget-progress-bar" class="h-full transition-all duration-700 rounded-full animated-gradient" style="width: 0%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #f43f5e 100%);"></div>
-            </div>
-        </div>
-
-        <!-- Quick-Action Spending Templates Header & Bar -->
-        <div class="mb-4">
-            <div class="flex justify-between items-center mb-2">
-                <label class="text-[10px] font-bold text-slate-800 dark:text-white/80 uppercase tracking-wider">Quick Add Templates</label>
-                <button type="button" onclick="openTemplatesManager()" class="text-[10px] font-bold text-slate-900 dark:text-white hover:underline cursor-pointer" id="manage-tpl-link">Manage Templates</button>
-            </div>
-            <div id="quick-templates-container" class="flex space-x-2 overflow-x-auto no-scrollbar pb-1"></div>
-        </div>
-
-        <!-- Transaction Form -->
-        <form id="transaction-form" class="space-y-3">
-            <div>
-                <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Date</label>
-                <input type="text" id="date" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" required class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Company / Description</label>
-                <input type="text" id="description" placeholder="e.g., Starbucks, Uniqlo" required class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200">
-            </div>
+        <!-- Main Dashboard Page -->
+        <div id="main-page" class="transition-all duration-300">
             
-            <!-- Type Selector -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Type</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" id="btn-expense" onclick="setType('Expense')" class="py-3 rounded-xl font-bold text-sm border transition-all duration-300 bg-white/60 dark:bg-black/30 border-slate-300 dark:border-white/10 text-slate-800 dark:text-white/70 cursor-pointer">Expense</button>
-                    <button type="button" id="btn-income" onclick="setType('Income')" class="py-3 rounded-xl font-bold text-sm border transition-all duration-300 bg-white/60 dark:bg-black/30 border-slate-300 dark:border-white/10 text-slate-800 dark:text-white/70 cursor-pointer">Income</button>
+            <!-- Top Header & Controls -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-black tracking-wide text-rose-500 transition-colors duration-300">Flow.</h1>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Swipe left/right anywhere to switch accounts</p>
                 </div>
-                <input type="hidden" id="type" value="Expense">
+                <div class="flex items-center space-x-2.5">
+                    <!-- Analytics Button -->
+                    <button onclick="openAnalyticsPage()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer font-semibold text-xs flex items-center space-x-1 shadow-sm">
+                        <span>Analytics</span>
+                    </button>
+                    <!-- Theme Toggle Button -->
+                    <button onclick="toggleTheme()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer font-semibold text-xs flex items-center space-x-1 shadow-sm">
+                        <span id="theme-text-label">Theme</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Custom App-Themed Category Dropdown Menu -->
-            <div class="relative">
-                <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Category</label>
-                <input type="hidden" id="category" required>
-                <button type="button" onclick="toggleCategoryMenu()" id="category-toggle-btn" class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm flex justify-between items-center focus:outline-none transition-all duration-300 cursor-pointer text-slate-800 dark:text-white/70">
-                    <span id="selected-category-text">Select a category</span>
-                    <span class="transform transition-transform duration-300" id="dropdown-arrow">&#9662;</span>
+            <!-- Multi-Bank Swipe Carousel Header -->
+            <div class="relative mb-5">
+                <div id="bank-carousel" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl transition-all touch-pan-y" onscroll="trackScrollPosition()"></div>
+                <div id="carousel-dots" class="flex justify-center items-center space-x-2 mt-3"></div>
+            </div>
+
+            <!-- Monthly Budget Widget Bar on Main Dashboard -->
+            <div onclick="openAnalyticsPage()" class="mb-5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Monthly Budget</span>
+                    <span id="budget-status-text" class="text-xs font-bold text-slate-800 dark:text-slate-100">RM 0.00 / RM 0.00</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                    <div id="budget-progress-bar" class="h-full transition-all duration-700 rounded-full bg-rose-500" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Quick-Action Spending Templates Header & Bar -->
+            <div class="mb-5">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Quick Templates</label>
+                    <button type="button" onclick="openTemplatesManager()" class="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer">Manage</button>
+                </div>
+                <div id="quick-templates-container" class="flex space-x-2 overflow-x-auto no-scrollbar pb-1"></div>
+            </div>
+
+            <!-- Transaction Form -->
+            <form id="transaction-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Date</label>
+                        <input type="text" id="date" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Amount (RM)</label>
+                        <input type="text" id="amount" placeholder="0.00" inputmode="decimal" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-all duration-200">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Description</label>
+                    <input type="text" id="description" placeholder="e.g., Starbucks, Salary" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-rose-500 transition-all duration-200">
+                </div>
+                
+                <!-- Type Selector -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Type</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" id="btn-expense" onclick="setType('Expense')" class="py-2.5 rounded-xl font-bold text-sm border transition-all duration-300 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer">Expense</button>
+                        <button type="button" id="btn-income" onclick="setType('Income')" class="py-2.5 rounded-xl font-bold text-sm border transition-all duration-300 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer">Income</button>
+                    </div>
+                    <input type="hidden" id="type" value="Expense">
+                </div>
+
+                <!-- Custom App-Themed Category Dropdown Menu -->
+                <div class="relative">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Category</label>
+                    <input type="hidden" id="category" required>
+                    <button type="button" onclick="toggleCategoryMenu()" id="category-toggle-btn" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm flex justify-between items-center focus:outline-none transition-all duration-300 cursor-pointer text-slate-500 dark:text-slate-400">
+                        <span id="selected-category-text">Select category</span>
+                        <span class="transform transition-transform duration-300 text-xs font-bold" id="dropdown-arrow">▼</span>
+                    </button>
+                    <div id="category-dropdown-list" class="hidden absolute left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-20 overflow-hidden animate-fade">
+                        <div class="p-1.5 space-y-1">
+                            <div onclick="selectCategory('Food & Drinks')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Food & Drinks</div>
+                            <div onclick="selectCategory('Clothing')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Clothing</div>
+                            <div onclick="selectCategory('Transport')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Transport</div>
+                            <div onclick="selectCategory('Entertainment')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Entertainment</div>
+                            <div onclick="selectCategory('Utilities & Bills')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Utilities & Bills</div>
+                            <div onclick="selectCategory('Salary')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Salary</div>
+                            <div onclick="selectCategory('Other')" class="p-2.5 text-sm rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition text-slate-700 dark:text-slate-200 font-medium">Other</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conditional Custom Category Input Field -->
+                <div id="custom-category-wrapper" class="hidden animate-fade">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Custom Category Name</label>
+                    <input type="text" id="custom-category-input" placeholder="Type custom category..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none">
+                    <div id="custom-category-notice" class="hidden mt-1.5 p-2 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-lg text-rose-600 dark:text-rose-300 text-xs font-semibold animate-fade">
+                        Please enter a custom category name.
+                    </div>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="grid grid-cols-4 gap-2.5 pt-2">
+                    <button type="button" onclick="clearForm()" class="col-span-1 py-3 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer border border-slate-200 dark:border-slate-700">Clear</button>
+                    <button type="submit" id="submit-btn" class="col-span-3 font-bold p-3.5 rounded-xl transition-all duration-300 cursor-pointer shadow-lg active:scale-95 text-white bg-rose-500 hover:bg-rose-600">
+                        Add Entry to <span id="current-bank-label">Bank Islam</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Navigation Button to History Page -->
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button onclick="openHistoryPage()" class="w-full py-3 px-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between transition cursor-pointer border border-slate-200 dark:border-slate-700/60 text-slate-800 dark:text-slate-200 font-bold text-sm">
+                    <span>View Transaction History & Search</span>
+                    <span class="text-xs">➔</span>
                 </button>
-                <div id="category-dropdown-list" class="hidden absolute left-0 right-0 mt-2 bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-white/15 rounded-xl shadow-2xl z-20 overflow-hidden animate-fade backdrop-blur-2xl">
-                    <div class="p-1 space-y-0.5">
-                        <div onclick="selectCategory('Food & Drinks')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Food & Drinks</div>
-                        <div onclick="selectCategory('Clothing')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Clothing</div>
-                        <div onclick="selectCategory('Transport')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Transport</div>
-                        <div onclick="selectCategory('Entertainment')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Entertainment</div>
-                        <div onclick="selectCategory('Utilities & Bills')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Utilities & Bills</div>
-                        <div onclick="selectCategory('Salary')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Salary</div>
-                        <div onclick="selectCategory('Other')" class="p-3 text-sm rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition text-slate-900 dark:text-slate-200">Other</div>
+            </div>
+        </div>
+
+        <!-- Dedicated Transaction History Page -->
+        <div id="history-page" class="hidden animate-app-load">
+            <div class="flex items-center justify-between mb-5">
+                <button onclick="closeHistoryPage()" class="py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition cursor-pointer border border-slate-200 dark:border-slate-700">← Back</button>
+                <h2 id="history-page-title" class="text-base font-bold text-slate-900 dark:text-white">Transaction History</h2>
+                <div class="w-12"></div>
+            </div>
+
+            <!-- Search Input -->
+            <div class="mb-4">
+                <input type="text" id="search-input" placeholder="Search description, category, amount..." oninput="updateApp()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none">
+            </div>
+
+            <!-- Filtered List -->
+            <div>
+                <ul id="transaction-list" class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1"></ul>
+            </div>
+        </div>
+
+        <!-- Monthly Summary & Analytics Page -->
+        <div id="analytics-page" class="hidden animate-app-load">
+            <div class="print-header hidden">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-black text-rose-500">Flow. Cash Tracker</h1>
+                        <p class="text-xs text-slate-500">Monthly Financial & Analytics Report</p>
+                    </div>
+                    <div class="text-right">
+                        <p id="print-date-label" class="text-xs font-bold text-slate-700"></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Conditional Custom Category Input Field -->
-            <div id="custom-category-wrapper" class="hidden animate-fade">
-                <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Specify Custom Category</label>
-                <input type="text" id="custom-category-input" placeholder="Type custom category name..." class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200">
-                <div id="custom-category-notice" class="hidden mt-1.5 p-2 bg-rose-950/80 border border-rose-800 rounded-lg text-rose-300 text-xs font-semibold animate-fade">
-                    Please enter a custom category name.
+            <div class="flex items-center justify-between mb-5 no-print">
+                <button onclick="closeAnalyticsPage()" class="py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition cursor-pointer border border-slate-200 dark:border-slate-700">← Back</button>
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">Analytics & Budget</h2>
+                <div class="w-12"></div>
+            </div>
+
+            <!-- Month Selector -->
+            <div class="mb-4 no-print">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Select Month & Year</label>
+                <input type="month" id="analytics-month-picker" onchange="renderAnalytics()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none font-semibold cursor-pointer">
+            </div>
+
+            <!-- Budget Goal Setting Card -->
+            <div class="mb-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-1">Monthly Budget Limit (RM)</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="budget-input" placeholder="e.g. 2000.00" inputmode="decimal" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none">
+                    <button onclick="saveBudgetGoal()" id="budget-save-btn" class="no-print text-white font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer bg-rose-500 hover:bg-rose-600 shadow-sm">Save</button>
+                </div>
+                <div id="budget-goal-notice" class="hidden mt-2 p-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-600 dark:text-emerald-300 text-xs font-semibold animate-fade">
+                    Budget limit saved successfully!
                 </div>
             </div>
 
+            <!-- Monthly Summary Stat Cards -->
+            <div class="grid grid-cols-3 gap-2.5 mb-4">
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-center">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Income</p>
+                    <p id="summary-income" class="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1">RM 0.00</p>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-center">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Expenses</p>
+                    <p id="summary-expense" class="text-sm font-black text-rose-600 dark:text-rose-400 mt-1">RM 0.00</p>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-center">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Net Savings</p>
+                    <p id="summary-net" class="text-sm font-black text-slate-800 dark:text-slate-200 mt-1">RM 0.00</p>
+                </div>
+            </div>
+
+            <!-- PDF Export & Import Action Bar -->
+            <div class="mb-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 shadow-sm no-print">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-2">Data & Reports</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button onclick="exportPDFReport()" class="py-2.5 px-3 rounded-xl text-white font-bold text-xs transition cursor-pointer flex items-center justify-center space-x-1 bg-rose-500 hover:bg-rose-600 shadow-sm">
+                        <span>Export PDF Report</span>
+                    </button>
+                    <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importData(event)">
+                    <button onclick="document.getElementById('import-file-input').click()" class="py-2.5 px-3 rounded-xl text-slate-700 dark:text-slate-200 font-bold text-xs transition cursor-pointer flex items-center justify-center space-x-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">
+                        <span>Import Backup</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Breakdown Section -->
             <div>
-                <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Amount (RM)</label>
-                <input type="text" id="amount" placeholder="0.00" inputmode="decimal" required class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200">
+                <h3 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2.5">Spending Breakdown</h3>
+                <ul id="category-breakdown-list" class="space-y-2 max-h-[25vh] overflow-y-auto pr-1"></ul>
             </div>
-
-            <!-- Clear Button & Synced Submit Button -->
-            <div class="grid grid-cols-4 gap-2 pt-1">
-                <button type="button" onclick="clearForm()" class="col-span-1 py-3 px-2 rounded-xl bg-white/50 dark:bg-black/30 hover:bg-white/80 dark:hover:bg-black/50 text-slate-900 dark:text-white font-bold text-xs transition cursor-pointer border border-slate-300 dark:border-white/10">Clear</button>
-                <button type="submit" id="submit-btn" class="col-span-3 font-extrabold p-3.5 rounded-xl transition-all duration-300 cursor-pointer shadow-lg active:scale-95 text-white animated-gradient">
-                    Add Expense to <span id="current-bank-label">Bank Islam</span>
-                </button>
-            </div>
-        </form>
-
-        <!-- Navigation Button to History Page -->
-        <div class="mt-5 pt-4 border-t border-slate-300 dark:border-white/10">
-            <button onclick="openHistoryPage()" class="w-full py-3 px-4 rounded-xl bg-white/50 dark:bg-black/30 hover:bg-white/80 dark:hover:bg-black/50 flex items-center justify-between transition cursor-pointer border text-slate-900 dark:text-white font-bold text-sm border-slate-300 dark:border-white/10">
-                <span>View Transaction History & Search</span>
-                <span>&#10095;</span>
-            </button>
         </div>
+
     </div>
 
-    <!-- Dedicated Transaction History Page -->
-    <div id="history-page" class="hidden w-full max-w-md backdrop-blur-xl p-6 rounded-3xl shadow-2xl animate-app-load transition-all duration-500">
-        <div class="flex items-center justify-between mb-6">
-            <button onclick="closeHistoryPage()" class="p-2 rounded-xl bg-white/50 dark:bg-black/30 hover:bg-white/80 dark:hover:bg-black/50 text-slate-900 dark:text-white font-bold text-sm hover:scale-105 transition cursor-pointer border border-slate-300 dark:border-white/10">&#10094; Back</button>
-            <h2 id="history-page-title" class="text-lg font-bold text-slate-900 dark:text-white">Transaction History</h2>
-            <div class="w-12"></div>
-        </div>
-
-        <!-- Search Input -->
-        <div class="mb-4">
-            <input type="text" id="search-input" placeholder="Search by description, amount, category..." oninput="updateApp()" class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200">
-        </div>
-
-        <!-- Filtered List -->
-        <div>
-            <ul id="transaction-list" class="space-y-2 max-h-[65vh] overflow-y-auto pr-1 transition-all duration-300"></ul>
-        </div>
-    </div>
-
-    <!-- Monthly Summary & Analytics Page -->
-    <div id="analytics-page" class="hidden w-full max-w-md backdrop-blur-xl p-6 rounded-3xl shadow-2xl animate-app-load transition-all duration-500">
-        <div class="print-header hidden">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-black text-rose-500">Flow. Cash Tracker</h1>
-                    <p class="text-xs text-slate-500">Monthly Financial & Analytics Report</p>
-                </div>
-                <div class="text-right">
-                    <p id="print-date-label" class="text-xs font-bold text-slate-700"></p>
-                    <p class="text-[10px] text-slate-400">Official Statement Summary</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-between mb-6 no-print">
-            <button onclick="closeAnalyticsPage()" class="p-2 rounded-xl bg-white/50 dark:bg-black/30 hover:bg-white/80 dark:hover:bg-black/50 text-slate-900 dark:text-white font-bold text-sm hover:scale-105 transition cursor-pointer border border-slate-300 dark:border-white/10">&#10094; Back</button>
-            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Analytics & Budget</h2>
-            <div class="w-12"></div>
-        </div>
-
-        <!-- Month Selector -->
-        <div class="mb-5 no-print">
-            <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Select Month & Year</label>
-            <input type="month" id="analytics-month-picker" onchange="renderAnalytics()" class="w-full bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none font-semibold cursor-pointer">
-        </div>
-
-        <!-- Budget Goal Setting Card -->
-        <div class="mb-5 p-4 rounded-2xl bg-white/50 dark:bg-black/30 border border-slate-300 dark:border-white/10 shadow-sm">
-            <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-1">Set Monthly Budget Goal (RM)</label>
-            <div class="flex items-center space-x-2">
-                <input type="text" id="budget-input" placeholder="e.g. 2000.00" inputmode="decimal" class="w-full bg-white/60 dark:bg-black/40 border border-slate-300 dark:border-white/10 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none placeholder-slate-400 dark:placeholder-white/40">
-                <button onclick="saveBudgetGoal()" id="budget-save-btn" class="no-print text-white font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer shadow-sm animated-gradient">Save</button>
-            </div>
-            <div id="budget-goal-notice" class="hidden mt-2 p-2 bg-emerald-950/80 border border-emerald-800 rounded-lg text-emerald-300 text-xs font-semibold animate-fade">
-                Budget goal successfully saved!
-            </div>
-        </div>
-
-        <!-- Monthly Summary Stat Cards -->
-        <div class="grid grid-cols-3 gap-3 mb-5">
-            <div class="p-3 rounded-xl bg-white/50 dark:bg-black/30 border border-slate-300 dark:border-white/10 text-center">
-                <p class="text-[10px] text-slate-700 dark:text-white/70 font-semibold uppercase">Income</p>
-                <p id="summary-income" class="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-0.5">RM 0.00</p>
-            </div>
-            <div class="p-3 rounded-xl bg-white/50 dark:bg-black/30 border border-slate-300 dark:border-white/10 text-center">
-                <p class="text-[10px] text-slate-700 dark:text-white/70 font-semibold uppercase">Expenses</p>
-                <p id="summary-expense" class="text-sm font-black text-rose-600 dark:text-rose-400 mt-0.5">RM 0.00</p>
-            </div>
-            <div class="p-3 rounded-xl bg-white/50 dark:bg-black/30 border border-slate-300 dark:border-white/10 text-center">
-                <p class="text-[10px] text-slate-700 dark:text-white/70 font-semibold uppercase">Net Savings</p>
-                <p id="summary-net" class="text-sm font-black text-slate-800 dark:text-slate-200 mt-0.5">RM 0.00</p>
-            </div>
-        </div>
-
-        <!-- PDF Export & Import Action Trigger Bar -->
-        <div class="mb-5 p-4 rounded-2xl bg-white/50 dark:bg-black/30 border border-slate-300 dark:border-white/10 shadow-sm no-print">
-            <label class="block text-xs font-semibold text-slate-800 dark:text-white/80 uppercase mb-2">Data Management & Reports</label>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="exportPDFReport()" id="pdf-export-btn" class="py-3 px-3 rounded-xl text-white font-extrabold text-xs transition cursor-pointer flex items-center justify-center space-x-1 shadow-lg animated-gradient">
-                    <span>📄 Export PDF</span>
-                </button>
-                <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importData(event)">
-                <button onclick="document.getElementById('import-file-input').click()" id="import-data-btn" class="py-3 px-3 rounded-xl text-white font-extrabold text-xs transition cursor-pointer flex items-center justify-center space-x-1 shadow-lg bg-slate-800 hover:bg-slate-700">
-                    <span>📂 Import Data</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Category Breakdown Section -->
-        <div>
-            <h3 class="text-xs font-bold text-slate-800 dark:text-white/80 uppercase tracking-wide mb-3">Spending by Category (This Month)</h3>
-            <ul id="category-breakdown-list" class="space-y-2.5 max-h-[30vh] overflow-y-auto pr-1"></ul>
-        </div>
-    </div>
-
-    <!-- Bank Selector Modal (Triggered by Vertical Swipe) -->
-    <div id="bank-selector-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-fade">
-        <div class="w-full max-w-xs bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-white/15 p-5 rounded-3xl shadow-2xl text-slate-900 dark:text-slate-100">
+    <!-- Animated Bank Selector Bottom Sheet Modal (Triggered by Swipe Up) -->
+    <div id="bank-selector-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+        <div id="bank-modal-content" class="w-full max-w-md bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-6 rounded-t-3xl shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-900 dark:text-white">Choose Bank / Wallet</h3>
-                <button onclick="closeBankSelectorModal()" class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold text-lg cursor-pointer">&times;</button>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Switch Bank Account</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Swipe down anywhere or click cancel</p>
+                </div>
+                <button onclick="closeBankSelectorModal()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs cursor-pointer">Cancel</button>
             </div>
-            <div id="bank-selector-list" class="space-y-2"></div>
+            <div id="bank-selector-list" class="space-y-2 pb-6"></div>
         </div>
     </div>
 
     <!-- Manage Templates Modal -->
-    <div id="templates-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-fade">
-        <div class="w-full max-w-md bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-white/15 p-6 rounded-3xl shadow-2xl text-slate-900 dark:text-slate-100">
+    <div id="templates-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-2xl animate-fade">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-slate-900 dark:text-white">Manage Quick Templates</h3>
-                <button onclick="closeTemplatesManager()" class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold text-lg cursor-pointer">&times;</button>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Manage Templates</h3>
+                <button onclick="closeTemplatesManager()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white font-bold text-sm cursor-pointer">Close</button>
             </div>
-            <div class="mb-4 p-3.5 rounded-2xl bg-white/60 dark:bg-slate-950 border border-slate-300 dark:border-white/10 space-y-2.5">
-                <p class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Create New Template</p>
+            <div class="mb-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2.5">
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">New Quick Template</p>
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="new-tpl-name" placeholder="Name (e.g. Coffee)" class="bg-white/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none">
-                    <input type="text" id="new-tpl-amount" placeholder="Amount (RM)" inputmode="decimal" class="bg-white/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none">
+                    <input type="text" id="new-tpl-name" placeholder="Name (e.g. Coffee)" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none">
+                    <input type="text" id="new-tpl-amount" placeholder="Amount (RM)" inputmode="decimal" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                    <select id="new-tpl-category" class="bg-white/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none">
+                    <select id="new-tpl-category" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none">
                         <option value="Food & Drinks">Food & Drinks</option>
                         <option value="Clothing">Clothing</option>
                         <option value="Transport">Transport</option>
@@ -362,15 +382,15 @@
                         <option value="Salary">Salary</option>
                         <option value="Other">Other</option>
                     </select>
-                    <select id="new-tpl-type" class="bg-white/80 dark:bg-slate-900 border border-slate-300 dark:border-white/10 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none">
+                    <select id="new-tpl-type" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none">
                         <option value="Expense">Expense</option>
                         <option value="Income">Income</option>
                     </select>
                 </div>
-                <button type="button" onclick="addNewTemplate()" id="modal-add-tpl-btn" class="w-full py-2.5 rounded-xl text-white font-bold text-xs transition cursor-pointer animated-gradient">Add Template</button>
+                <button type="button" onclick="addNewTemplate()" class="w-full py-2.5 rounded-xl text-white font-bold text-xs transition cursor-pointer bg-rose-500 hover:bg-rose-600">Add Template</button>
             </div>
             <div>
-                <p class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase mb-2">Existing Templates</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Existing Templates</p>
                 <ul id="modal-templates-list" class="space-y-2 max-h-[30vh] overflow-y-auto pr-1"></ul>
             </div>
         </div>
@@ -380,13 +400,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                const mainPage = document.getElementById('main-page');
                 splash.classList.add('animate-splash-exit');
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    mainPage.classList.add('animate-app-load');
                 }, 400);
-            }, 1100);
+            }, 1000);
 
             const now = new Date();
             const year = now.getFullYear();
@@ -396,7 +414,7 @@
                 monthPicker.value = `${year}-${month}`;
             }
             renderQuickTemplates();
-            applyBankThemeColors();
+            renderCarousel();
             initSwipeGestures();
         });
 
@@ -417,116 +435,39 @@
         ];
         let quickTemplates = JSON.parse(localStorage.getItem('flow_quick_templates')) || defaultQuickTemplates;
 
-        const bankThemes = {
-            'Bank Islam': {
-                primaryText: 'text-rose-300',
-                primaryBg: 'bg-gradient-to-r from-red-600 via-rose-600 to-pink-700',
-                mainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(159, 18, 57, 0.85) 0%, rgba(136, 19, 55, 0.95) 50%, rgba(76, 5, 25, 1) 100%)',
-                lightMainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(254, 202, 202, 0.98) 0%, rgba(255, 228, 230, 1) 70%, rgba(254, 226, 226, 1) 100%)',
-                appBgGradient: 'radial-gradient(circle at 50% 0%, rgba(136, 19, 55, 0.45) 0%, rgba(9, 3, 6, 1) 70%, rgba(2, 1, 2, 1) 100%)',
-                lightAppBgGradient: 'radial-gradient(circle at 50% 0%, rgba(254, 226, 226, 0.95) 0%, rgba(241, 245, 249, 1) 70%, rgba(226, 232, 240, 1) 100%)',
-                gradientCard: 'bg-gradient-to-r from-red-700 via-rose-600 to-pink-800 shadow-rose-950/50 border border-red-500/30 text-white animated-gradient'
-            },
-            'TNG eWallet': {
-                primaryText: 'text-blue-200',
-                primaryBg: 'bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-700',
-                mainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.85) 0%, rgba(30, 58, 138, 0.95) 50%, rgba(15, 23, 42, 1) 100%)',
-                lightMainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(191, 219, 254, 0.98) 0%, rgba(224, 242, 254, 1) 70%, rgba(239, 246, 255, 1) 100%)',
-                appBgGradient: 'radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.45) 0%, rgba(3, 8, 20, 1) 70%, rgba(1, 3, 8, 1) 100%)',
-                lightAppBgGradient: 'radial-gradient(circle at 50% 0%, rgba(219, 234, 254, 0.95) 0%, rgba(241, 245, 249, 1) 70%, rgba(226, 232, 240, 1) 100%)',
-                gradientCard: 'bg-gradient-to-r from-blue-700 via-sky-600 to-indigo-800 shadow-blue-950/50 border border-blue-400/30 text-white animated-gradient'
-            },
-            'P-Circle': {
-                primaryText: 'text-emerald-200',
-                primaryBg: 'bg-gradient-to-r from-emerald-600 via-teal-600 to-green-700',
-                mainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(4, 120, 87, 0.85) 0%, rgba(6, 95, 70, 0.95) 50%, rgba(2, 44, 34, 1) 100%)',
-                lightMainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(167, 243, 208, 0.98) 0%, rgba(209, 250, 229, 1) 70%, rgba(236, 253, 245, 1) 100%)',
-                appBgGradient: 'radial-gradient(circle at 50% 0%, rgba(6, 95, 70, 0.45) 0%, rgba(2, 15, 10, 1) 70%, rgba(1, 5, 3, 1) 100%)',
-                lightAppBgGradient: 'radial-gradient(circle at 50% 0%, rgba(209, 250, 229, 0.95) 0%, rgba(241, 245, 249, 1) 70%, rgba(226, 232, 240, 1) 100%)',
-                gradientCard: 'bg-gradient-to-r from-emerald-700 via-teal-600 to-green-800 shadow-emerald-950/50 border border-emerald-500/30 text-white animated-gradient'
-            },
-            'Tabung Haji': {
-                primaryText: 'text-teal-200',
-                primaryBg: 'bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-700',
-                mainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(15, 118, 110, 0.85) 0%, rgba(17, 94, 89, 0.95) 50%, rgba(4, 47, 46, 1) 100%)',
-                lightMainBgGradient: 'radial-gradient(circle at 50% 0%, rgba(153, 246, 228, 0.98) 0%, rgba(204, 251, 241, 1) 70%, rgba(240, 253, 250, 1) 100%)',
-                appBgGradient: 'radial-gradient(circle at 50% 0%, rgba(17, 94, 89, 0.45) 0%, rgba(2, 12, 12, 1) 70%, rgba(1, 4, 4, 1) 100%)',
-                lightAppBgGradient: 'radial-gradient(circle at 50% 0%, rgba(204, 251, 241, 0.95) 0%, rgba(241, 245, 249, 1) 70%, rgba(226, 232, 240, 1) 100%)',
-                gradientCard: 'bg-gradient-to-r from-teal-700 via-emerald-600 to-cyan-800 shadow-teal-950/50 border border-emerald-400/30 text-white animated-gradient'
-            }
-        };
-
-        function applyBankThemeColors() {
-            const currentBank = banks[currentBankIndex];
-            const theme = bankThemes[currentBank];
-            const isDark = document.documentElement.classList.contains('dark');
-            const bodyEl = document.getElementById('app-body');
-            bodyEl.style.background = isDark ? theme.appBgGradient : theme.lightAppBgGradient;
-
-            const mainPage = document.getElementById('main-page');
-            const historyPage = document.getElementById('history-page');
-            const analyticsPage = document.getElementById('analytics-page');
-            const cardBgStyle = isDark ? theme.mainBgGradient : theme.lightMainBgGradient;
-
-            if (mainPage) {
-                mainPage.style.background = cardBgStyle;
-                mainPage.style.border = 'none';
-            }
-            if (historyPage) {
-                historyPage.style.background = cardBgStyle;
-                historyPage.style.border = 'none';
-            }
-            if (analyticsPage) {
-                analyticsPage.style.background = cardBgStyle;
-                analyticsPage.style.border = 'none';
-            }
-
-            const logo = document.getElementById('app-logo-title');
-            logo.className = `text-2xl font-extrabold tracking-wide transition-colors duration-500 ${isDark ? theme.primaryText : 'text-slate-900'}`;
-
-            const splashLogo = document.getElementById('splash-logo');
-            if (splashLogo) splashLogo.className = `text-5xl font-black tracking-wider mb-2 ${theme.primaryText}`;
-
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.className = `col-span-3 font-extrabold p-3.5 rounded-xl transition-all duration-300 cursor-pointer shadow-lg active:scale-95 text-white ${theme.primaryBg} animated-gradient`;
-
-            const tplLink = document.getElementById('manage-tpl-link');
-            tplLink.className = `text-[10px] font-bold hover:underline cursor-pointer ${isDark ? theme.primaryText : 'text-slate-900'}`;
-
-            const modalTplBtn = document.getElementById('modal-add-tpl-btn');
-            modalTplBtn.className = `w-full py-2.5 rounded-xl text-white font-bold text-xs transition cursor-pointer ${theme.primaryBg} animated-gradient`;
-
-            const saveBudgetBtn = document.getElementById('budget-save-btn');
-            if (saveBudgetBtn) saveBudgetBtn.className = `no-print text-white font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer shadow-sm ${theme.primaryBg} animated-gradient`;
-
-            const pdfExportBtn = document.getElementById('pdf-export-btn');
-            if (pdfExportBtn) pdfExportBtn.className = `py-3 px-3 rounded-xl text-white font-extrabold text-xs transition cursor-pointer flex items-center justify-center space-x-1 shadow-lg ${theme.primaryBg} animated-gradient`;
-        }
-
         function initSwipeGestures() {
-            const carousel = document.getElementById('bank-carousel');
+            const wrapper = document.getElementById('main-card-wrapper');
             let startX = 0;
             let startY = 0;
 
-            carousel.addEventListener('touchstart', (e) => {
+            wrapper.addEventListener('touchstart', (e) => {
+                // Ignore swipe if inside scrollable containers (like lists)
+                if (e.target.closest('#transaction-list') || e.target.closest('#category-dropdown-list') || e.target.closest('#bank-selector-modal')) return;
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
             }, { passive: true });
 
-            carousel.addEventListener('touchend', (e) => {
+            wrapper.addEventListener('touchend', (e) => {
+                if (e.target.closest('#transaction-list') || e.target.closest('#category-dropdown-list') || e.target.closest('#bank-selector-modal')) return;
                 const endX = e.changedTouches[0].clientX;
                 const endY = e.changedTouches[0].clientY;
                 const diffX = endX - startX;
                 const diffY = endY - startY;
 
                 if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > 40) {
+                    if (Math.abs(diffX) > 50) {
                         if (diffX > 0) prevBank();
                         else nextBank();
                     }
                 } else {
-                    if (Math.abs(diffY) > 40) {
-                        openBankSelectorModal();
+                    if (Math.abs(diffY) > 50) {
+                        if (diffY < 0) {
+                            // Swipe Up -> Open Bank Selector
+                            openBankSelectorModal();
+                        } else {
+                            // Swipe Down -> Cancel / Close modal if open
+                            closeBankSelectorModal();
+                        }
                     }
                 }
             }, { passive: true });
@@ -534,13 +475,20 @@
 
         function openBankSelectorModal() {
             const modal = document.getElementById('bank-selector-modal');
+            const content = document.getElementById('bank-modal-content');
             const list = document.getElementById('bank-selector-list');
             list.innerHTML = '';
             banks.forEach((bank, idx) => {
+                let total = 0;
+                (allData[bank] || []).forEach(tx => {
+                    const val = parseFloat(tx.amount) || 0;
+                    if (tx.type === 'Income') total += val; else total -= val;
+                });
+
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = `w-full p-3 rounded-xl font-bold text-sm transition cursor-pointer flex justify-between items-center ${idx === currentBankIndex ? 'bg-rose-600 text-white shadow-md' : 'bg-white/60 dark:bg-slate-950 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-white/10 hover:bg-black/15'}`;
-                btn.innerHTML = `<span>${bank}</span> ${idx === currentBankIndex ? '<span>✓</span>' : ''}`;
+                btn.className = `w-full p-3.5 rounded-2xl font-bold text-sm transition cursor-pointer flex justify-between items-center ${idx === currentBankIndex ? 'bg-rose-500 text-white shadow-md' : 'bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`;
+                btn.innerHTML = `<span>${bank}</span> <span class="font-normal text-xs opacity-90">RM ${formatMoney(total)}</span>`;
                 btn.onclick = () => {
                     scrollToBank(idx);
                     closeBankSelectorModal();
@@ -548,10 +496,19 @@
                 list.appendChild(btn);
             });
             modal.classList.remove('hidden');
+            content.classList.remove('animate-slide-down');
+            content.classList.add('animate-slide-up');
         }
 
         function closeBankSelectorModal() {
-            document.getElementById('bank-selector-modal').classList.add('hidden');
+            const modal = document.getElementById('bank-selector-modal');
+            const content = document.getElementById('bank-modal-content');
+            content.classList.remove('animate-slide-up');
+            content.classList.add('animate-slide-down');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                content.classList.remove('animate-slide-down');
+            }, 200);
         }
 
         function importData(event) {
@@ -600,7 +557,8 @@
 
         function openHistoryPage() {
             document.getElementById('main-page').classList.add('hidden');
-            document.getElementById('history-page').classList.remove('hidden');
+            const historyPage = document.getElementById('history-page');
+            historyPage.classList.remove('hidden');
             document.getElementById('history-page-title').textContent = `${banks[currentBankIndex]} History`;
             updateApp();
         }
@@ -674,11 +632,11 @@
             e.target.value = val;
         });
 
-        function updateThemeIcon() {
+        function updateThemeLabel() {
             const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+            document.getElementById('theme-text-label').textContent = isDark ? 'Light' : 'Dark';
         }
-        updateThemeIcon();
+        updateThemeLabel();
 
         function toggleTheme() {
             if (document.documentElement.classList.contains('dark')) {
@@ -688,7 +646,7 @@
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
             }
-            updateThemeIcon();
+            updateThemeLabel();
             renderCarousel();
         }
 
@@ -701,14 +659,13 @@
             const currentBank = banks[currentBankIndex];
 
             if (type === 'Expense') {
-                expBtn.className = "py-3 rounded-xl font-bold text-sm border transition-all duration-300 bg-rose-950/60 border-rose-500 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)] cursor-pointer scale-[1.02]";
-                incBtn.className = "py-3 rounded-xl font-bold text-sm border transition-all duration-300 bg-white/60 dark:bg-black/30 border-slate-300 dark:border-white/10 text-slate-800 dark:text-white/70 cursor-pointer";
+                expBtn.className = "py-2.5 rounded-xl font-bold text-sm border transition-all duration-300 bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-600 dark:text-rose-300 shadow-sm";
+                incBtn.className = "py-2.5 rounded-xl font-bold text-sm border transition-all duration-300 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer";
             } else {
-                incBtn.className = "py-3 rounded-xl font-bold text-sm border transition-all duration-300 bg-emerald-950/60 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] cursor-pointer scale-[1.02]";
-                expBtn.className = "py-3 rounded-xl font-bold text-sm border transition-all duration-300 bg-white/60 dark:bg-black/30 border-slate-300 dark:border-white/10 text-slate-800 dark:text-white/70 cursor-pointer";
+                incBtn.className = "py-2.5 rounded-xl font-bold text-sm border transition-all duration-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-600 dark:text-emerald-300 shadow-sm";
+                expBtn.className = "py-2.5 rounded-xl font-bold text-sm border transition-all duration-300 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer";
             }
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.innerHTML = `Add ${type} to <span id="current-bank-label">${currentBank}</span>`;
+            document.getElementById('current-bank-label').textContent = currentBank;
         }
         setType('Expense');
 
@@ -720,7 +677,7 @@
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.onclick = () => applyQuickTemplate(t.desc, t.category, t.amount, t.type);
-                btn.className = 'whitespace-nowrap px-3 py-1.5 rounded-xl bg-white/60 dark:bg-black/30 border border-slate-300 dark:border-white/10 text-xs font-semibold text-slate-900 dark:text-white transition cursor-pointer hover:bg-white/90 dark:hover:bg-black/50';
+                btn.className = 'whitespace-nowrap px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer';
                 btn.textContent = `${t.name} (RM ${t.amount})`;
                 container.appendChild(btn);
             });
@@ -741,13 +698,13 @@
             listEl.innerHTML = "";
             quickTemplates.forEach((t, idx) => {
                 const li = document.createElement('li');
-                li.className = 'flex justify-between items-center bg-white/80 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-300 dark:border-white/10 text-xs text-slate-800 dark:text-slate-200';
+                li.className = 'flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200';
                 li.innerHTML = `
                     <div>
                         <span class="font-bold text-slate-900 dark:text-white">${t.name}</span>
-                        <span class="text-slate-600 dark:text-slate-400">(${t.category} - RM ${t.amount} [${t.type}])</span>
+                        <span class="text-slate-500 dark:text-slate-400">(${t.category} - RM ${t.amount})</span>
                     </div>
-                    <button type="button" onclick="deleteTemplate(${idx})" class="text-slate-500 dark:text-slate-400 hover:text-rose-400 font-bold px-2 py-1 cursor-pointer">&times;</button>
+                    <button type="button" onclick="deleteTemplate(${idx})" class="text-slate-400 hover:text-rose-500 font-bold px-2 py-1 cursor-pointer">Delete</button>
                 `;
                 listEl.appendChild(li);
             });
@@ -763,13 +720,7 @@
                 alert('Please enter a valid template name and numeric amount.');
                 return;
             }
-            quickTemplates.push({
-                name: name,
-                desc: name.replace(/[^a-zA-Z0-9 ]/g, '').trim() || name,
-                category: category,
-                amount: amount,
-                type: type
-            });
+            quickTemplates.push({ name, desc: name, category, amount, type });
             localStorage.setItem('flow_quick_templates', JSON.stringify(quickTemplates));
             document.getElementById('new-tpl-name').value = '';
             document.getElementById('new-tpl-amount').value = '';
@@ -791,16 +742,13 @@
         }
 
         function clearForm() {
-            const form = document.getElementById('transaction-form');
-            form.reset();
+            document.getElementById('transaction-form').reset();
             document.getElementById('date').value = getTodayFormatted();
             document.getElementById('category').value = '';
             const textSpan = document.getElementById('selected-category-text');
-            textSpan.textContent = "Select a category";
-            textSpan.className = "text-slate-800 dark:text-white/60";
+            textSpan.textContent = "Select category";
+            textSpan.className = "text-slate-400 font-normal";
             document.getElementById('custom-category-wrapper').classList.add('hidden');
-            document.getElementById('custom-category-input').value = '';
-            document.getElementById('custom-category-notice').classList.add('hidden');
             setType('Expense');
         }
 
@@ -826,29 +774,25 @@
             dotsContainer.innerHTML = "";
             banks.forEach((bank, index) => {
                 let total = 0;
-                const bankTransactions = allData[bank] || [];
-                bankTransactions.forEach(tx => {
+                (allData[bank] || []).forEach(tx => {
                     const val = parseFloat(tx.amount) || 0;
-                    if (tx.type === 'Income') total += val;
-                    else total -= val;
+                    if (tx.type === 'Income') total += val; else total -= val;
                 });
 
-                const theme = bankThemes[bank];
                 const slide = document.createElement('div');
-                slide.className = `min-w-full snap-center p-5 rounded-2xl text-center shadow-lg transition-all duration-500 ${theme.gradientCard} flex flex-col justify-center`;
+                slide.className = `min-w-full snap-center p-5 rounded-2xl text-center shadow-sm transition-all duration-300 bg-gradient-to-br from-rose-500 to-pink-600 text-white`;
                 slide.innerHTML = `
-                    <p class="text-xs text-white/80 font-semibold uppercase tracking-wider">Total Balance</p>
-                    <h3 class="text-xl font-bold mt-0.5 tracking-wide text-white">${bank}</h3>
-                    <h2 class="text-3xl font-black mt-1 text-white">RM ${formatMoney(total)}</h2>
+                    <p class="text-xs text-white/80 font-medium uppercase tracking-wider">Account Balance</p>
+                    <h3 class="text-lg font-bold mt-0.5">${bank}</h3>
+                    <h2 class="text-3xl font-black mt-1">RM ${formatMoney(total)}</h2>
                 `;
                 carousel.appendChild(slide);
 
                 const dot = document.createElement('button');
-                dot.className = `h-2 rounded-full transition-all duration-300 cursor-pointer ${index === currentBankIndex ? 'w-6 bg-white' : 'w-2 bg-white/40'}`;
+                dot.className = `h-2 rounded-full transition-all duration-300 cursor-pointer ${index === currentBankIndex ? 'w-6 bg-rose-500' : 'w-2 bg-slate-300 dark:bg-slate-700'}`;
                 dot.onclick = () => scrollToBank(index);
                 dotsContainer.appendChild(dot);
             });
-            applyBankThemeColors();
             setType(selectedType);
             updateDashboardWidgets();
         }
@@ -860,23 +804,19 @@
             let totalMonthlyExpense = 0;
 
             banks.forEach(bank => {
-                const txs = allData[bank] || [];
-                txs.forEach(tx => {
+                (allData[bank] || []).forEach(tx => {
                     const parsed = parseDate(tx.date);
                     if (parsed) {
                         const txYM = `${parsed.year}-${String(parsed.month).padStart(2, '0')}`;
-                        if (txYM === currentYearMonth) {
-                            const val = parseFloat(tx.amount) || 0;
-                            if (tx.type === 'Expense') totalMonthlyExpense += val;
+                        if (txYM === currentYearMonth && tx.type === 'Expense') {
+                            totalMonthlyExpense += parseFloat(tx.amount) || 0;
                         }
                     }
                 });
             });
 
-            const statusText = document.getElementById('budget-status-text');
+            document.getElementById('budget-status-text').textContent = `RM ${formatMoney(totalMonthlyExpense)} / RM ${formatMoney(limit)}`;
             const progressBar = document.getElementById('budget-progress-bar');
-            statusText.textContent = `RM ${formatMoney(totalMonthlyExpense)} / RM ${formatMoney(limit)}`;
-
             if (limit > 0) {
                 let percentage = (totalMonthlyExpense / limit) * 100;
                 if (percentage > 100) percentage = 100;
@@ -927,35 +867,31 @@
                 return tx.description.toLowerCase().includes(searchQuery) ||
                        tx.category.toLowerCase().includes(searchQuery) ||
                        tx.amount.toString().includes(searchQuery) ||
-                       tx.date.toLowerCase().includes(searchQuery) ||
-                       (tx.time && tx.time.toLowerCase().includes(searchQuery));
+                       tx.date.toLowerCase().includes(searchQuery);
             });
 
             if (filteredTransactions.length === 0) {
-                transactionList.innerHTML = `<p class="text-center text-slate-700 dark:text-white/70 text-sm py-4 animate-fade">No transactions found in ${currentBank}.</p>`;
+                transactionList.innerHTML = `<p class="text-center text-slate-400 text-sm py-6 animate-fade">No transactions found.</p>`;
                 return;
             }
-
-            const theme = bankThemes[currentBank];
-            const isDark = document.documentElement.classList.contains('dark');
 
             filteredTransactions.forEach((tx) => {
                 const originalIndex = transactions.indexOf(tx);
                 const li = document.createElement('li');
-                li.className = "flex justify-between items-center bg-white/50 dark:bg-black/30 p-3.5 rounded-xl border border-slate-300 dark:border-white/10 text-sm animate-fade transition-all duration-200";
+                li.className = "flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm animate-fade transition-all";
                 const amountVal = parseFloat(tx.amount) || 0;
                 const timeDisplay = tx.time ? ` • ${tx.time}` : '';
 
                 li.innerHTML = `
                     <div>
                         <p class="font-bold text-slate-900 dark:text-white">${tx.description}</p>
-                        <p class="text-xs text-slate-600 dark:text-white/70 mt-0.5">${tx.date}${timeDisplay} <span class="${isDark ? theme.primaryText : 'text-rose-600 font-bold'} font-medium">${tx.category}</span></p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${tx.date}${timeDisplay} • <span class="font-semibold text-rose-500">${tx.category}</span></p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <span class="${tx.type === 'Income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} font-black text-base">
+                        <span class="${tx.type === 'Income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} font-bold text-base">
                             ${tx.type === 'Income' ? '+' : '-'}RM ${formatMoney(amountVal)}
                         </span>
-                        <button onclick="deleteTransaction(${originalIndex})" class="no-print text-slate-400 dark:text-white/60 hover:text-rose-500 transition font-bold px-1 cursor-pointer">&times;</button>
+                        <button onclick="deleteTransaction(${originalIndex})" class="no-print text-slate-400 hover:text-rose-500 transition font-bold px-1 cursor-pointer">✕</button>
                     </div>
                 `;
                 transactionList.appendChild(li);
@@ -997,7 +933,7 @@
                     goalNotice.classList.remove('animate-exit');
                     goalNotice.classList.add('hidden');
                 }, 200);
-            }, 3000);
+            }, 2500);
         }
 
         function exportPDFReport() {
@@ -1020,8 +956,7 @@
             const categoryTotals = {};
 
             banks.forEach(bank => {
-                const txs = allData[bank] || [];
-                txs.forEach(tx => {
+                (allData[bank] || []).forEach(tx => {
                     const parsed = parseDate(tx.date);
                     if (parsed && monthPickerVal) {
                         const txYM = `${parsed.year}-${String(parsed.month).padStart(2, '0')}`;
@@ -1043,14 +978,14 @@
             document.getElementById('summary-expense').textContent = `RM ${formatMoney(totalExpense)}`;
             const netEl = document.getElementById('summary-net');
             netEl.textContent = `RM ${formatMoney(netSavings)}`;
-            netEl.className = `text-sm font-black mt-0.5 ${netSavings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`;
+            netEl.className = `text-sm font-black mt-1 ${netSavings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`;
 
             const breakdownList = document.getElementById('category-breakdown-list');
             breakdownList.innerHTML = "";
 
             const sortedCategories = Object.keys(categoryTotals).sort((a, b) => categoryTotals[b] - categoryTotals[a]);
             if (sortedCategories.length === 0) {
-                breakdownList.innerHTML = `<p class="text-center text-slate-700 dark:text-white/70 text-sm py-4">No expense records found for this month.</p>`;
+                breakdownList.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">No expense records found for this month.</p>`;
                 return;
             }
 
@@ -1058,14 +993,14 @@
                 const amt = categoryTotals[cat];
                 const percentage = totalExpense > 0 ? Math.round((amt / totalExpense) * 100) : 0;
                 const li = document.createElement('li');
-                li.className = "bg-white/50 dark:bg-black/30 p-3 rounded-xl border border-slate-300 dark:border-white/10 text-sm text-slate-900 dark:text-slate-200";
+                li.className = "bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200";
                 li.innerHTML = `
                     <div class="flex justify-between items-center mb-1.5">
                         <span class="font-bold text-slate-900 dark:text-white">${cat}</span>
-                        <span class="font-black text-rose-600 dark:text-rose-400">RM ${formatMoney(amt)} <span class="text-xs text-slate-600 dark:text-white/70 font-normal">(${percentage}%)</span></span>
+                        <span class="font-bold text-rose-500">RM ${formatMoney(amt)} (${percentage}%)</span>
                     </div>
-                    <div class="w-full bg-black/10 dark:bg-black/40 h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-rose-500 h-full rounded-full" style="width: ${percentage}%"></div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-rose-500 h-full rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
                     </div>
                 `;
                 breakdownList.appendChild(li);
@@ -1094,7 +1029,7 @@
                             customNotice.classList.remove('animate-exit');
                             customNotice.classList.add('hidden');
                         }, 200);
-                    }, 3000);
+                    }, 2500);
                     return;
                 }
                 categoryVal = customCat;
